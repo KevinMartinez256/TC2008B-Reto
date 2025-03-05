@@ -23,6 +23,7 @@ class CarAgent(ap.Agent):
 
         # 🔹 Evitar errores si la posición actual ya no existe en el grid
         if current_pos is None or current_pos not in self.model.grid.positions:
+            print(f"Agente {self} tiene una posición inválida.")  # Debug
             return  
 
         # 🔹 Obtener movimientos válidos (asegurar que la posición existe)
@@ -33,6 +34,7 @@ class CarAgent(ap.Agent):
 
         if possible_moves:
             new_pos = self.random.choice(possible_moves)
+            print(f"Agente {self} se mueve de {current_pos} a {new_pos}")  # Debug
 
             # 🔹 Verificar que la nueva posición aún existe antes de moverse
             if new_pos in self.model.grid.positions.values():
@@ -44,6 +46,7 @@ class CarAgent(ap.Agent):
                 else:
                     self.pos = None  # En caso de que el agente haya sido eliminado
         else:
+            print(f"Agente {self} no encontró movimiento válido.")  # Debug
             self.pos = current_pos  # 🔹 Mantener posición actual si no hay movimientos válidos
 
 class TrafficModel(ap.Model):
@@ -58,6 +61,7 @@ class TrafficModel(ap.Model):
 
     def step(self):
         """Ejecuta un paso de la simulación y devuelve las posiciones."""
+        print("Moviendo autos en el grid...")  # Debug
         self.agents.move()
         return [{"id": i, "pos": list(agent.pos) if agent.pos else None} for i, agent in enumerate(self.agents)]
 
@@ -67,8 +71,10 @@ traffic_model.setup()  # 🔹 ¡Esta línea es clave!
 
 @app.route('/simulate', methods=['GET'])
 def run_simulation():
-    """Simula un paso y envía los datos en formato JSON."""
+    """Avanza la simulación en un paso y envía los datos actualizados en formato JSON."""
+    print("Ejecutando un paso de la simulación...")  # Debug
     result = traffic_model.step()
+    print("Datos actualizados:", result)  # Debug
     return jsonify(result)
 
 def run_flask():
